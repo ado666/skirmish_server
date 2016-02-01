@@ -52,4 +52,5 @@ class Round(models.Model):
             'theme': theme,
             'step': self.step,
             'themes': themes,
+            'turn': self.turn.json(),
         }

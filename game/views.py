@@ -201,12 +201,34 @@ class Game:
         if not Game:
             return
 
-        current_round = None
+        cr = None
         for r in game.rounds.all():
             if r.current == 1:
-                r.step = r.step + 1
-                r.save()
-                game.current_round = r
+                cr = r
+
+        if cr.step == 5:
+            print (game.players.all()[0].id, cr.owner.id)
+            if game.players.all()[0].id == player.id:
+                cr.turn = game.players.all()[1]
+            else:
+                cr.turn = game.players.all()[0]
+            cr.step = 1
+
+            connection = APNS()
+            connection.connect()
+
+            address = cr.turn.push_id[1:-1]
+            address = re.sub(r'\s', '', address)
+            connection.send(address, {
+                'changed': [{'entity': 'game', 'entity_id': game.id}]
+            })
+
+            connection.disconnect()
+        else:
+            cr.step = cr.step + 1
+
+        cr.save()
+        game.current_round = cr
 
         return JsonResponse({
             'status': 'ok',
