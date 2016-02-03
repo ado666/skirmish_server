@@ -33,7 +33,7 @@ class APNS(object):
         payload = {
             "content-available": 1,
             "apn": payload,
-            "aps" : { "alert" : u"Ох! льва бы потоптать сейчас. ;(" },
+            "aps" : { "alert" : u"Нотификашка" },
             "acme2" : [ "bang",  "whiz" ]
         }
 

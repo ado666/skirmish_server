@@ -207,7 +207,6 @@ class Game:
                 cr = r
 
         if cr.step == 5:
-            print (game.players.all()[0].id, cr.owner.id)
             if game.players.all()[0].id == player.id:
                 cr.turn = game.players.all()[1]
             else:
