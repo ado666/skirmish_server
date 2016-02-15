@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from game.models import Game as Model
 from player.models import Player
 from theme.models import Theme
+from round.models import Round
 from question.models import Question
 # from game.models import IngameResults
 
@@ -207,6 +208,39 @@ class Game:
                 cr = r
 
         if cr.step == 5:
+            if cr.turn != cr.owner:
+                r       = Round()
+                r.game  = game
+                r.current = 1
+                if game.players.all()[0].id == player.id:
+                    r.owner = game.players.all()[0]
+                else:
+                    r.owner = game.players.all()[1]
+                r.turn = r.owner
+                r.step = 1
+
+                r.save()
+
+                cr.current = 0
+                cr.save()
+
+                connection = APNS()
+                connection.connect()
+
+                address = cr.turn.push_id[1:-1]
+                address = re.sub(r'\s', '', address)
+                connection.send(address, {
+                    'changed': [{'entity': 'game', 'entity_id': game.id}]
+                })
+
+                return JsonResponse({
+                    'status': 'ok',
+                    'result': {},
+                    'payload': {
+                        'game': game.json()
+                    }
+                })
+
             if game.players.all()[0].id == player.id:
                 cr.turn = game.players.all()[1]
             else:
